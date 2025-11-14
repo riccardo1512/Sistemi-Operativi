@@ -40,36 +40,41 @@ int main(int argc, char *argv[])
 		exit(1);								   // codice di errore, ci dovrebbe essere una tabella
 	}
 
-	// mi calcolo le statistiche
+	// Calcolo le statistiche
 	struct stat *statbuf = malloc(sizeof(struct stat));
 	fstat(ifd, statbuf);
 	unsigned int size = statbuf->st_size;
 
 	int num_record = size / sizeof(rec_t);
-	printf("numero record = %zu", num_record);
+	printf("numero record = %d", num_record);
 
-	// creo nell'heap dove salvarmi tutto
+	// Creo nell'heap dove salvarmi tutto
 	rec_t *buffer = malloc(num_record * sizeof(rec_t));		// per variabili grandi usare l'heap, prk lo stack è piccolo
 	rec_t record;
 
-	/* leggo i record ad uno ad uno finchè la read legge */
+	/* Leggo i record ad uno ad uno finchè la read legge */
 	for(int i = 0; i < num_record; i++) {
 		
 		read(ifd, &record, sizeof(rec_t));
 		buffer[i] = record;
 	}
-	// altra chiamata mmap, crea array che mappa ogni singolo byte del file, è una figata pazzesca, serve sufficiente memoria per mappare tutto il file
+	// altra chiamata possibile è mmap, crea array che mappa ogni singolo byte del file, è una figata pazzesca, serve sufficiente memoria per mappare tutto il file
 
-	// sorto usando la funzione compare
+	// Sorto usando la funzione compare
 	qsort(buffer, num_record, sizeof(rec_t), compare);
 
-	// scrivo in output
-	int fd_out = open(output_path, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
-	write(fd_out, buffer, size);
+	// Apertura del file di output e scrittura
+	int ofd = open(output_path, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+	for(int i = 0; i < num_record; i++) {
+		
+		write(ofd, &buffer[i], sizeof(rec_t));
+		buffer[i] = record;
+	}
+	write(ofd, buffer, size);
 
-	close(fd_out);
-
-	(void)close(ifd);
+	// Chiusura
+	close(ifd);
+	close(ofd);
 
 	return 0;
 }
