@@ -87,6 +87,21 @@ void print_memory()
 	printf("--------Fine stampa memoria-------\n\n");
 }
 
+void merge_memory() {
+
+	node* cur = first;
+
+	while(cur != NULL && cur->next != NULL) {
+
+		if(cur->free && cur->next->free) {
+
+			cur->size += sizeof(node) + cur->next->size;
+			cur->next = cur->next->next;
+		}
+		cur = cur->next;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2)
@@ -116,5 +131,9 @@ int main(int argc, char **argv)
 
 	void *ptr4 = my_malloc(1);
 
+	print_memory();
+
+	printf("sizeof(node): %ld\n", sizeof(node));
+	merge_memory();
 	print_memory();
 }
