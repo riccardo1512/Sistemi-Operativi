@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 
+// 1h 20 min
+
 typedef struct node {
 
     int free;
